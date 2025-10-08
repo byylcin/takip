@@ -177,7 +177,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script type="module">
-  import { firebaseConfig, authCredentials } from "./config.js";
+  import { firebaseConfig, authCredentials, weatherConfig} from "./config.js";
 
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -207,6 +207,11 @@
         elWeek=$('weekSum'), elMonth=$('monthSum'), meterEl=document.querySelector('.meter'),
         btn018=$('btn018'),btn02=$('btn02'), btn05=$('btn05'), btn075=$('btn075');
 
+
+  const elTemp = $('tempValue'), 
+      elLocation = $('locationName'), 
+      elDesc = $('weatherDesc');
+  
   // ✅ Pop-up göster/gizle
   let okTimer = null;
   function showOkPopup(message = "Kayıt eklendi") {
@@ -275,6 +280,46 @@
     setTimeout(()=> span.remove(), 650);
     btn.classList.add('pulse'); setTimeout(()=> btn.classList.remove('pulse'), 200);
   }
+
+
+
+  async function fetchWeather() {
+    const { apiKey, city } = weatherConfig;
+
+    if (!apiKey) {
+         elLocation.textContent = "API Key Eksik";
+         return;
+    }
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=tr`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("API hatası: " + response.statusText);
+        
+        const data = await response.json();
+        
+        elLocation.textContent = data.name;
+        elTemp.textContent = `${Math.round(data.main.temp)}°C`;
+        elDesc.textContent = data.weather[0].description.toUpperCase(); 
+
+    } catch (error) {
+        console.error("Hava durumu çekilemedi:", error);
+        elLocation.textContent = weatherConfig.city.split(',')[0] || "Konum";
+        elTemp.textContent = "--°C";
+        elDesc.textContent = "Veri Yok";
+    }
+}
+
+// Hava durumunu başlangıçta çek
+fetchWeather(); 
+
+// Her 15 dakikada bir güncelle (900000 ms = 15 dk)
+setInterval(fetchWeather, 900000);
+
+  
+  
+  
   function flashBar(){ meterEl.classList.add('flash'); setTimeout(()=> meterEl.classList.remove('flash'), 250); }
 
   // Auth: tek kullanıcıyla otomatik giriş
