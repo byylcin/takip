@@ -2,8 +2,21 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Takip</title>
+<script>
+  // Eğer sayfa PWA (standalone) olarak açılmışsa zoom'u kapat
+  if (window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true) {
+    const meta = document.querySelector('meta[name=viewport]');
+    if (meta) {
+      meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+    }
+  }
+</script>
+
+  
 <style>
   .btn {
     flex: 1;
@@ -119,7 +132,7 @@
       </div>
 
       <canvas id="chart7" height="170"></canvas>
-      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır..</div>
+      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdıiir.</div>
     </div>
   </div>
 
