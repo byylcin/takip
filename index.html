@@ -1,135 +1,19 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Takip</title>
-<style>
-  :root { --bg:#0f1115; --card:#151923; --txt:#e6e7ea; --muted:#9aa0aa; --bar:#2a3040; --barFill:#21c27a; }
-  html,body{height:100%}
-  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-       background:var(--bg);color:var(--txt);display:flex;align-items:center;justify-content:center}
-  .wrap{width:100%;max-width:820px;padding:24px}
-  .card{background:var(--card);border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.35);
-        display:flex;flex-direction:column;gap:22px}
-  .top{display:flex;gap:18px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-  .clock{font-size:38px;font-weight:800}
-  .date{font-size:13px;color:var(--muted);margin-top:-6px}
-  .buttons{display:flex;gap:14px;flex-wrap:wrap}
-  .btn{flex:1;min-width:140px;padding:16px 0;border-radius:14px;border:1px solid rgba(255,255,255,.08);
-       font-size:20px;font-weight:800;cursor:pointer}
-  .btn:active{transform:translateY(1px);filter:brightness(.95)}
-  .btn:disabled{opacity:.55;cursor:not-allowed}
-  .btn02{background:linear-gradient(180deg,rgba(0,208,132,.18),rgba(0,208,132,.08));color:#bffae1}
-  .btn05{background:linear-gradient(180deg,rgba(94,200,255,.18),rgba(94,200,255,.08));color:#d6efff}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .stat{background:rgba(255,255,255,.04);border-radius:12px;padding:12px;text-align:center}
-  .stat .lab{font-size:12px;color:var(--muted)}
-  .stat .val{font-size:22px;font-weight:800}
-  .meter{height:12px;background:#2a3040;border-radius:999px;overflow:hidden;width:100%;
-         box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-  .meter>span{display:block;height:100%;width:0%;background:var(--barFill);transition:width .25s ease}
-  canvas{background:transparent;border-radius:12px}
-  .muted{color:var(--muted);font-size:12px;text-align:center}
-  /* Ripple & küçük animasyonlar (opsiyonel) */
-  .btn{ position:relative; overflow:hidden; }
-  .ripple{ position:absolute; border-radius:50%; pointer-events:none; transform:scale(0); opacity:.5; background:#fff; mix-blend-mode:overlay; animation:ripple .6s ease-out forwards; }
-  @keyframes ripple{ to{ transform:scale(12); opacity:0; } }
-  .btn.pulse{ animation:pulse .18s ease; } @keyframes pulse{ 50%{ transform:translateY(1px) scale(.98); } }
-  .meter.flash{ box-shadow: 0 0 0 2px rgba(33,194,122,.35), inset 0 0 12px rgba(33,194,122,.35); }
+<script type="module">
+  import { firebaseConfig, authCredentials } from "./config.js";
 
-.btn {
-  flex: 1;
-  min-width: 120px;
-  min-height: 110px;           /* tıklama alanı sabit */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.15));
-  transition: transform 0.15s ease, background 0.25s ease;
-  cursor: pointer;
-}
-.btn img {
-  width: 65px;
-  height: auto;
-  max-height: 80px;
-  object-fit: contain;
-  margin: 0 auto;
-  pointer-events: none;
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-.btn:active img {
-  transform: scale(0.95);
-  filter: brightness(1.25);
-}
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  // 🔻 Firestore importlarını TEK satırda topla (çift import yok)
+  import {
+    getFirestore, initializeFirestore,
+    collection, addDoc, query, where, onSnapshot, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged,
+    signInWithEmailAndPassword,
+    setPersistence, browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-/* tablet ve desktop düzeltmeleri */
-@media (min-width: 768px) {
-  .btn {
-    min-width: 150px;
-    min-height: 120px;
-  }
-  .btn img {
-    width: 75px;
-    max-height: 90px;
-  }
-}
-@media (min-width: 1200px) {
-  .btn {
-    min-width: 160px;
-    min-height: 130px;
-  }
-  .btn img {
-    width: 80px;
-    max-height: 95px;
-  }
-}
-
-
-  
-</style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <div>
-          <div id="clock" class="clock">--:--:--</div>
-          <div id="date" class="date">----------</div>
-        </div>
-      </div>
-
-      <div class="buttons">
-        <button id="btn02" class="btn btn02" disabled data-val="0.2">
-          <img src="./images/glass.png" alt="+0.2 L" />
-        </button>
-        <button id="btn05" class="btn btn05" disabled data-val="0.5">
-          <img src="./images/bottle.png" alt="+0.5 L" />
-        </button>
-      </div>
-
-
-      <div class="stats">
-        <div class="stat"><div class="lab">Bugün içilen</div><div id="todaySum" class="val">0.0 L</div></div>
-        <div class="stat"><div class="lab">Kalan</div><div id="remain" class="val">0.0 L</div></div>
-        <div class="stat"><div class="lab">Günlük hedef</div><div id="goalView" class="val">2.5 L</div></div>
-      </div>
-
-      <div class="meter"><span id="bar"></span></div>
-
-      <div class="stats">
-        <div class="stat"><div class="lab">Son 7 gün</div><div id="weekSum" class="val">0.0 L</div></div>
-        <div class="stat"><div class="lab">Bu ay</div><div id="monthSum" class="val">0.0 L</div></div>
-        <div class="stat"><div class="lab">—</div><div class="val">&nbsp;</div></div>
-      </div>
-
-      <canvas id="chart7" height="170"></canvas>
-      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır..</div>
-    </div>
-  </div>
-
+  // ---- Chart.js'i Dinamik Yükle (modül içinde) ----
   let Chart; // global ref
   async function ensureChartJs() {
     if (!Chart) {
@@ -138,34 +22,17 @@
     }
   }
 
-<script type="module">
-  import { firebaseConfig, authCredentials } from "./config.js";
-
-  import { getFirestore, initializeFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-  
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import {
-    initializeFirestore, collection, addDoc, query, where, onSnapshot, getDocs
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-  import {
-    getAuth, onAuthStateChanged,
-    signInWithEmailAndPassword,
-    setPersistence, browserLocalPersistence
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
   // Sabit hedef
   const DAILY_GOAL_L = 2.5;
 
   // Firebase
   const app = initializeApp(firebaseConfig);
-  
+
+  // Hızlı yol: getFirestore; gerekirse fallback long-polling
   let db;
   try {
-    // hızlı yol
     db = getFirestore(app);
-  } catch (_) {
-    // ancak sorun olursa fallback
+  } catch {
     db = initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
   }
   const auth= getAuth(app);
@@ -189,7 +56,7 @@
   elGoalView.textContent = `${DAILY_GOAL_L.toFixed(1)} L`;
 
   // Online/UID'a göre buton kontrolü
-  let UID = null;
+  let UID = null, unsubToday=null, chart7=null;
   function setButtonsByState() {
     const enable = navigator.onLine && !!UID;
     btn02.disabled = !enable;
@@ -219,7 +86,6 @@
     try {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, authCredentials.email, authCredentials.password);
-      // başarılıysa onAuthStateChanged çalışır
     } catch (e) {
       console.error("Otomatik giriş başarısız:", e);
       alert("Giriş başarısız: " + (e.message || e.code || e));
@@ -245,6 +111,7 @@
         uid: UID, tarih: todayISO(), saat: timeNow(), eklenen_deger: litres
       });
       flashBar();
+      await refreshAggregatesAndChart(); // periyodik yerine olay bazlı yenile
     } catch(e){
       alert("Kayıt eklenemedi: " + (e.message || e));
     } finally {
@@ -255,7 +122,6 @@
   btn05.onclick = (e)=>{ addRipple(e); addValue(0.5); };
 
   // Bugünün toplamını dinle
-  let unsubToday=null, chart7=null;
   async function attachTodayListener(){
     if (typeof unsubToday==='function'){ unsubToday(); unsubToday=null; }
     const q=query(collection(db,'kayitlar'), where('uid','==',UID), where('tarih','==',todayISO()));
@@ -268,10 +134,14 @@
     });
   }
 
-  // Son 7 gün / Bu ay
-  await ensureChartJs();
+  // Son 30 gün / Bu ay
   async function refreshAggregatesAndChart(){
     if (!UID) return;
+
+    // Chart.js'i tam burada yükle (ilk boyama sonrası)
+    await ensureChartJs();
+
+    // (performans için istersen tarih aralığı ekleyebilirsin)
     const snap = await getDocs(query(collection(db,'kayitlar'), where('uid','==', UID)));
     const all = snap.docs.map(d=>d.data());
     const map = new Map(); let weekSum=0, monthSum=0;
@@ -293,56 +163,45 @@
       const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
       labels.push(key.slice(5)); // "MM-DD"
       const v = Number(map.get(key) || 0);
-      data.push(+v.toFixed(1));  // ✅ sayı olarak (ör. 1.2)
+      data.push(+v.toFixed(1));  // sayı olarak
     }
     draw30Days(labels, data);
-
   }
-  setInterval(()=>{ if(UID && navigator.onLine) refreshAggregatesAndChart(); }, 60000);
-  
-  // --- Son 30 gün grafiği: hedefin altı kırmızı ---
-function draw30Days(labels, data) {
-  const ctx = document.getElementById('chart7');
-  if (chart7) chart7.destroy();
 
-  chart7 = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Son 30 Gün (L)',
-        data,
-        backgroundColor: (ctx) => {
-          const val = ctx.parsed.y;
-          return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 0.8)' : 'rgba(33, 194, 122, 0.8)';
-        },
-        borderColor: (ctx) => {
-          const val = ctx.parsed.y;
-          return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 1)' : 'rgba(33, 194, 122, 1)';
-        },
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,.06)' },
-          ticks: { color: '#cfd5df' }
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(255,255,255,.06)' },
-          ticks: { color: '#cfd5df' }
+  // --- Son 30 gün grafiği: hedefin altı kırmızı ---
+  function draw30Days(labels, data) {
+    const ctx = document.getElementById('chart7');
+    if (chart7) chart7.destroy();
+
+    chart7 = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Son 30 Gün (L)',
+          data,
+          backgroundColor: (ctx) => {
+            const val = ctx.parsed.y;
+            return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 0.8)' : 'rgba(33, 194, 122, 0.8)';
+          },
+          borderColor: (ctx) => {
+            const val = ctx.parsed.y;
+            return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 1)' : 'rgba(33, 194, 122, 1)';
+          },
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#cfd5df' } },
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#cfd5df' } }
         }
       }
-    }
-  });
-}
+    });
+  }
 
+  // İstersen periyodik tazelemeyi kaldırıp sadece add sonrası yeniliyoruz.
+  // setInterval(()=>{ if(UID && navigator.onLine) refreshAggregatesAndChart(); }, 60000);
 </script>
-</body>
-</html>
-
-
