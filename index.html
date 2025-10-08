@@ -164,7 +164,6 @@
       </div>
       <div>
         <div id="okText" class="ok-text">Kayıt eklendi</div>
-        <div class="ok-sub">3 sn içinde kapanacak</div>
       </div>
     </div>
   </div>
@@ -215,7 +214,7 @@
     btn075.disabled = true;
 
     if (okTimer) clearTimeout(okTimer);
-    okTimer = setTimeout(hideOkPopup, 3000);
+    okTimer = setTimeout(hideOkPopup, 2000);
   }
   function hideOkPopup() {
     const pop = document.getElementById('okPop');
