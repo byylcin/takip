@@ -155,7 +155,7 @@
         <div class="stat"><div class="lab">Bu ay</div><div id="monthSum" class="val">0.0 L</div></div>
       </div>
 
-      <canvas id="chart7" height="170"></canvas>
+      <canvas id="chart30" height="170"></canvas>
       <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır.</div>
     </div>
   </div>
@@ -320,7 +320,7 @@
   btn075.onclick = (e)=>{ addRipple(e); addValue(0.75); };
 
   // Bugünün toplamını dinle
-  let unsubToday=null, chart7=null;
+  let unsubToday=null, chart30=null;
   async function attachTodayListener(){
     if (typeof unsubToday==='function'){ unsubToday(); unsubToday=null; }
     const q=query(collection(db,'kayitlar'), where('uid','==',UID), where('tarih','==',todayISO()));
@@ -365,10 +365,10 @@
 
   // --- Son 30 gün grafiği: hedefin altı kırmızı ---
   function draw30Days(labels, data) {
-    const ctx = document.getElementById('chart7');
-    if (chart7) chart7.destroy();
+    const ctx = document.getElementById('chart30');
+    if (chart30) chart30.destroy();
 
-    chart7 = new Chart(ctx, {
+    chart30 = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
