@@ -183,7 +183,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   
   import {
-    initializeFirestore, collection, addDoc, query, where, onSnapshot, getDocs, serverTimestamp
+    initializeFirestore, collection, addDoc, query, where, onSnapshot, getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   
   import {
@@ -306,7 +306,7 @@
 
     try{
       await addDoc(collection(db,'kayitlar'), {
-        uid: UID, tarih: todayISO(), timestamp: serverTimestamp(), eklenen_deger: litres
+        uid: UID, tarih: todayISO(), saat: timeNow(), eklenen_deger: litres
       });
       flashBar();
       // ✅ başarılı → pop-up göster ve 3 sn kilitli kalsın
