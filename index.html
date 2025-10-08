@@ -217,21 +217,7 @@
   // Son 7 gün / Bu ay
   async function refreshAggregatesAndChart(){
     if (!UID) return;
-    const end = new Date(); // bugün
-    const start = new Date();
-    start.setDate(start.getDate() - 59); // 60 gün geriye git
-    const startKey = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
-    const endKey   = `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}-${String(end.getDate()).padStart(2,'0')}`;
-    const q = query(
-      collection(db, 'kayitlar'),
-      where('uid', '==', UID),
-      where('tarih', '>=', startKey),
-      where('tarih', '<=', endKey)
-      );
-    
-    const snap = await getDocs(q);
-
-    
+    const snap = await getDocs(query(collection(db,'kayitlar'), where('uid','==', UID)));
     const all = snap.docs.map(d=>d.data());
     const map = new Map(); let weekSum=0, monthSum=0;
     const now=new Date(), today=todayISO();
