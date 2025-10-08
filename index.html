@@ -121,6 +121,11 @@
       </div>
 
       <div class="buttons">
+
+        <button id="btn018" class="btn btn018" disabled data-val="0.18">
+          <img src="./images/glass.webp"  alt="+0.18 L" width="40" height="60" loading="lazy">
+        </button>
+        
         <button id="btn02" class="btn btn02" disabled data-val="0.2">
           <img src="./images/glass.webp"  alt="+0.2 L" width="40" height="60" loading="lazy">
         </button>
@@ -132,6 +137,8 @@
         <button id="btn075" class="btn btn075" disabled data-val="0.75">
           <img src="./images/tupper.webp" alt="+0.75 L" width="85" height="110" loading="lazy" />
         </button>
+
+        
       </div>
 
       <div class="stats">
@@ -148,7 +155,7 @@
       </div>
 
       <canvas id="chart7" height="170"></canvas>
-      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdıraA.</div>
+      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır.</div>
     </div>
   </div>
 
@@ -194,7 +201,7 @@
   const elClock=$('clock'), elDate=$('date'), elGoalView=$('goalView'),
         elToday=$('todaySum'), elRemain=$('remain'), elBar=$('bar'),
         elWeek=$('weekSum'), elMonth=$('monthSum'), meterEl=document.querySelector('.meter'),
-        btn02=$('btn02'), btn05=$('btn05'), btn075=$('btn075');
+        btn018=$('btn018'),btn02=$('btn02'), btn05=$('btn05'), btn075=$('btn075');
 
   // ✅ Pop-up göster/gizle
   let okTimer = null;
@@ -208,6 +215,7 @@
     pop.setAttribute('aria-hidden', 'false');
 
     // 🔒 Butonları kilitle
+    btn018.disabled = true;
     btn02.disabled = true;
     btn05.disabled = true;
     btn075.disabled = true;
@@ -241,6 +249,7 @@
   let UID = null;
   function setButtonsByState() {
     const enable = navigator.onLine && !!UID;
+    btn018.disabled  = !enable;
     btn02.disabled  = !enable;
     btn05.disabled  = !enable;
     btn075.disabled = !enable;
@@ -304,6 +313,7 @@
       setButtonsByState();
     }
   }
+  btn018.onclick  = (e)=>{ addRipple(e); addValue(0.18);  };
   btn02.onclick  = (e)=>{ addRipple(e); addValue(0.2);  };
   btn05.onclick  = (e)=>{ addRipple(e); addValue(0.5);  };
   btn075.onclick = (e)=>{ addRipple(e); addValue(0.75); };
