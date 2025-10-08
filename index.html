@@ -37,6 +37,20 @@
   @keyframes ripple{ to{ transform:scale(12); opacity:0; } }
   .btn.pulse{ animation:pulse .18s ease; } @keyframes pulse{ 50%{ transform:translateY(1px) scale(.98); } }
   .meter.flash{ box-shadow: 0 0 0 2px rgba(33,194,122,.35), inset 0 0 12px rgba(33,194,122,.35); }
+
+  .btn img {
+  width: 80px;
+  height: auto;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.btn:active img {
+  transform: scale(0.95);
+  filter: brightness(1.2);
+}
+
+  
 </style>
 </head>
 <body>
