@@ -38,22 +38,55 @@
   .btn.pulse{ animation:pulse .18s ease; } @keyframes pulse{ 50%{ transform:translateY(1px) scale(.98); } }
   .meter.flash{ box-shadow: 0 0 0 2px rgba(33,194,122,.35), inset 0 0 12px rgba(33,194,122,.35); }
 
-  .btn img {
-  width: 30px;
+.btn {
+  flex: 1;
+  min-width: 120px;
+  min-height: 110px;           /* tıklama alanı sabit */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.15));
+  transition: transform 0.15s ease, background 0.25s ease;
+  cursor: pointer;
+}
+.btn img {
+  width: 65px;
   height: auto;
-  max-height:80px;
+  max-height: 80px;
+  object-fit: contain;
+  margin: 0 auto;
   pointer-events: none;
-  transition: transform 0.2s ease;
-  }
-  
-  @media (min-width: 768px) {
-  .btn img { width: 85px; } /* tablet/desktop */
-  }
-
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
 .btn:active img {
   transform: scale(0.95);
-  filter: brightness(1.2);
+  filter: brightness(1.25);
 }
+
+/* tablet ve desktop düzeltmeleri */
+@media (min-width: 768px) {
+  .btn {
+    min-width: 150px;
+    min-height: 120px;
+  }
+  .btn img {
+    width: 75px;
+    max-height: 90px;
+  }
+}
+@media (min-width: 1200px) {
+  .btn {
+    min-width: 160px;
+    min-height: 130px;
+  }
+  .btn img {
+    width: 80px;
+    max-height: 95px;
+  }
+}
+
 
   
 </style>
@@ -93,7 +126,7 @@
       </div>
 
       <canvas id="chart7" height="170"></canvas>
-      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapaalıdırr.</div>
+      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır..</div>
     </div>
   </div>
 
