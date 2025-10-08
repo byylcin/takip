@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Su Takibi</title>
+<style>
+  :root { --bg:#0f1115; --card:#151923; --txt:#e6e7ea; --muted:#9aa0aa; --bar:#2a3040; --barFill:#21c27a; }
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--txt);display:flex;align-items:center;justify-content:center}
+  .wrap{width:100%;max-width:820px;padding:24px}
+  .card{background:var(--card);border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.35);
+        display:flex;flex-direction:column;gap:22px}
+  .top{display:flex;gap:18px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .clock{font-size:38px;font-weight:800}
+  .date{font-size:13px;color:var(--muted);margin-top:-6px}
+  .buttons{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{flex:1;min-width:140px;padding:16px 0;border-radius:14px;border:1px solid rgba(255,255,255,.08);
+       font-size:20px;font-weight:800;cursor:pointer}
+  .btn:active{transform:translateY(1px);filter:brightness(.95)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn05{background:linear-gradient(180deg,rgba(0,208,132,.18),rgba(0,208,132,.08));color:#bffae1}
+  .btn08{background:linear-gradient(180deg,rgba(94,200,255,.18),rgba(94,200,255,.08));color:#d6efff}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .stat{background:rgba(255,255,255,.04);border-radius:12px;padding:12px;text-align:center}
+  .stat .lab{font-size:12px;color:var(--muted)}
+  .stat .val{font-size:22px;font-weight:800}
+  .meter{height:12px;background:#2a3040;border-radius:999px;overflow:hidden;width:100%;
+         box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .meter>span{display:block;height:100%;width:0%;background:var(--barFill);transition:width .25s ease}
+  canvas{background:transparent;border-radius:12px}
+  .muted{color:var(--muted);font-size:12px;text-align:center}
+  /* Ripple & küçük animasyonlar (opsiyonel) */
+  .btn{ position:relative; overflow:hidden; }
+  .ripple{ position:absolute; border-radius:50%; pointer-events:none; transform:scale(0); opacity:.5; background:#fff; mix-blend-mode:overlay; animation:ripple .6s ease-out forwards; }
+  @keyframes ripple{ to{ transform:scale(12); opacity:0; } }
+  .btn.pulse{ animation:pulse .18s ease; } @keyframes pulse{ 50%{ transform:translateY(1px) scale(.98); } }
+  .meter.flash{ box-shadow: 0 0 0 2px rgba(33,194,122,.35), inset 0 0 12px rgba(33,194,122,.35); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <div id="clock" class="clock">--:--:--</div>
+          <div id="date" class="date">----------</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button id="btn05" class="btn btn05" disabled data-val="0.5">+0.5 L</button>
+        <button id="btn08" class="btn btn08" disabled data-val="0.8">+0.8 L</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="lab">Bugün içilen</div><div id="todaySum" class="val">0.0 L</div></div>
+        <div class="stat"><div class="lab">Kalan</div><div id="remain" class="val">0.0 L</div></div>
+        <div class="stat"><div class="lab">Günlük hedef</div><div id="goalView" class="val">2.5 L</div></div>
+      </div>
+
+      <div class="meter"><span id="bar"></span></div>
+
+      <div class="stats">
+        <div class="stat"><div class="lab">Son 7 gün</div><div id="weekSum" class="val">0.0 L</div></div>
+        <div class="stat"><div class="lab">Bu ay</div><div id="monthSum" class="val">0.0 L</div></div>
+        <div class="stat"><div class="lab">—</div><div class="val">&nbsp;</div></div>
+      </div>
+
+      <canvas id="chart7" height="170"></canvas>
+      <div class="muted">⚠️ Çevrimdışı olduğunda veri girişi kapalıdır</div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script type="module">
+  import { firebaseConfig, authCredentials } from "./config.js";
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    initializeFirestore, collection, addDoc, query, where, onSnapshot, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged,
+    signInWithEmailAndPassword,
+    setPersistence, browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  // Sabit hedef
+  const DAILY_GOAL_L = 2.5;
+
+  // Firebase
+  const app = initializeApp(firebaseConfig);
+  const db  = initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
+  const auth= getAuth(app);
+
+  // UI refs
+  const $ = id => document.getElementById(id);
+  const elClock=$('clock'), elDate=$('date'), elGoalView=$('goalView'),
+        elToday=$('todaySum'), elRemain=$('remain'), elBar=$('bar'),
+        elWeek=$('weekSum'), elMonth=$('monthSum'), meterEl=document.querySelector('.meter'),
+        btn05=$('btn05'), btn08=$('btn08');
+
+  // Saat
+  const pad = n => n.toString().padStart(2,'0');
+  const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+  const timeNow  = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
+  function tickClock(){ const d=new Date();
+    elClock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    elDate.textContent  = `${todayISO()} • ` + new Intl.DateTimeFormat('tr-TR',{dateStyle:'full'}).format(d);
+  }
+  setInterval(tickClock,1000); tickClock();
+  elGoalView.textContent = `${DAILY_GOAL_L.toFixed(1)} L`;
+
+  // Online/UID'a göre buton kontrolü
+  let UID = null;
+  function setButtonsByState() {
+    const enable = navigator.onLine && !!UID;
+    btn05.disabled = !enable;
+    btn08.disabled = !enable;
+  }
+  window.addEventListener("online",  setButtonsByState);
+  window.addEventListener("offline", setButtonsByState);
+
+  // Ripple & mini animasyon
+  function addRipple(e) {
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const span = document.createElement('span');
+    const size = Math.max(rect.width, rect.height);
+    span.className = 'ripple';
+    span.style.width = span.style.height = size + 'px';
+    span.style.left = (e.clientX - rect.left - size/2) + 'px';
+    span.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+    btn.appendChild(span);
+    setTimeout(()=> span.remove(), 650);
+    btn.classList.add('pulse'); setTimeout(()=> btn.classList.remove('pulse'), 200);
+  }
+  function flashBar(){ meterEl.classList.add('flash'); setTimeout(()=> meterEl.classList.remove('flash'), 250); }
+
+  // Auth: tek kullanıcıyla otomatik giriş
+  async function autoSignIn() {
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithEmailAndPassword(auth, authCredentials.email, authCredentials.password);
+      // başarılıysa onAuthStateChanged çalışır
+    } catch (e) {
+      console.error("Otomatik giriş başarısız:", e);
+      alert("Giriş başarısız: " + (e.message || e.code || e));
+    }
+  }
+  autoSignIn();
+
+  onAuthStateChanged(auth, async (user)=>{
+    if (!user) { UID = null; setButtonsByState(); return; }
+    UID = user.uid;
+    setButtonsByState();
+    await attachTodayListener();
+    if (navigator.onLine) await refreshAggregatesAndChart();
+  });
+
+  // Yazma (sadece online + UID varsa)
+  async function addValue(litres){
+    if (!navigator.onLine) { alert("Çevrimdışı! Bağlantı gelince deneyin."); return; }
+    if (!UID) { alert("Bağlantı kuruluyor, lütfen tekrar deneyin."); return; }
+    setButtonsByState(); // kısa kilitleme
+    try{
+      await addDoc(collection(db,'kayitlar'), {
+        uid: UID, tarih: todayISO(), saat: timeNow(), eklenen_deger: litres
+      });
+      flashBar();
+    } catch(e){
+      alert("Kayıt eklenemedi: " + (e.message || e));
+    } finally {
+      setButtonsByState();
+    }
+  }
+  btn05.onclick = (e)=>{ addRipple(e); addValue(0.5); };
+  btn08.onclick = (e)=>{ addRipple(e); addValue(0.8); };
+
+  // Bugünün toplamını dinle
+  let unsubToday=null, chart7=null;
+  async function attachTodayListener(){
+    if (typeof unsubToday==='function'){ unsubToday(); unsubToday=null; }
+    const q=query(collection(db,'kayitlar'), where('uid','==',UID), where('tarih','==',todayISO()));
+    unsubToday=onSnapshot(q,snap=>{
+      let sum=0; snap.forEach(doc=> sum += Number(doc.data().eklenen_deger)||0 );
+      elToday.textContent = `${sum.toFixed(1)} L`;
+      const remain = Math.max(0, DAILY_GOAL_L - sum);
+      elRemain.textContent = `${remain.toFixed(1)} L`;
+      elBar.style.width = `${Math.min(100, DAILY_GOAL_L>0 ? (sum/DAILY_GOAL_L)*100 : 0)}%`;
+    });
+  }
+
+  // Son 7 gün / Bu ay
+  async function refreshAggregatesAndChart(){
+    if (!UID) return;
+    const snap = await getDocs(query(collection(db,'kayitlar'), where('uid','==', UID)));
+    const all = snap.docs.map(d=>d.data());
+    const map = new Map(); let weekSum=0, monthSum=0;
+    const now=new Date(), today=todayISO();
+    const startWeek=(()=>{const d=new Date(); d.setDate(d.getDate()-6); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;})();
+    const startMonth=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;
+    for (const r of all){
+      const v = Number(r.eklenen_deger)||0;
+      map.set(r.tarih,(map.get(r.tarih)||0)+v);
+      if (r.tarih>=startWeek && r.tarih<=today) weekSum += v;
+      if (r.tarih>=startMonth && r.tarih<=today) monthSum += v;
+    }
+    $('weekSum').textContent = `${weekSum.toFixed(1)} L`;
+    $('monthSum').textContent= `${monthSum.toFixed(1)} L`;
+
+    const labels=[], data=[];
+    for (let i=29;i>=0;i--){
+      const d=new Date(); d.setDate(d.getDate()-i);
+      const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      labels.push(key.slice(5)); // "MM-DD"
+      const v = Number(map.get(key) || 0);
+      data.push(+v.toFixed(1));  // ✅ sayı olarak (ör. 1.2)
+    }
+    draw30Days(labels, data);
+
+  }
+  setInterval(()=>{ if(UID && navigator.onLine) refreshAggregatesAndChart(); }, 60000);
+  
+  // --- Son 30 gün grafiği: hedefin altı kırmızı ---
+function draw30Days(labels, data) {
+  const ctx = document.getElementById('chart7');
+  if (chart7) chart7.destroy();
+
+  chart7 = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Son 30 Gün (L)',
+        data,
+        backgroundColor: (ctx) => {
+          const val = ctx.parsed.y;
+          return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 0.8)' : 'rgba(33, 194, 122, 0.8)';
+        },
+        borderColor: (ctx) => {
+          const val = ctx.parsed.y;
+          return val < DAILY_GOAL_L ? 'rgba(255, 99, 132, 1)' : 'rgba(33, 194, 122, 1)';
+        },
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,.06)' },
+          ticks: { color: '#cfd5df' }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,.06)' },
+          ticks: { color: '#cfd5df' }
+        }
+      }
+    }
+  });
+}
+
+</script>
+</body>
+</html>
+
+
