@@ -130,10 +130,20 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  let Chart; // global ref
+  async function ensureChartJs() {
+    if (!Chart) {
+      const mod = await import("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js");
+      Chart = mod.Chart;
+    }
+  }
+
 <script type="module">
   import { firebaseConfig, authCredentials } from "./config.js";
 
+  import { getFirestore, initializeFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import {
     initializeFirestore, collection, addDoc, query, where, onSnapshot, getDocs
@@ -149,7 +159,15 @@
 
   // Firebase
   const app = initializeApp(firebaseConfig);
-  const db  = initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
+  
+  let db;
+  try {
+    // hızlı yol
+    db = getFirestore(app);
+  } catch (_) {
+    // ancak sorun olursa fallback
+    db = initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
+  }
   const auth= getAuth(app);
 
   // UI refs
@@ -251,6 +269,7 @@
   }
 
   // Son 7 gün / Bu ay
+  await ensureChartJs();
   async function refreshAggregatesAndChart(){
     if (!UID) return;
     const snap = await getDocs(query(collection(db,'kayitlar'), where('uid','==', UID)));
