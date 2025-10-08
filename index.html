@@ -216,7 +216,6 @@
 
   const elTemp = $('tempValue'), 
       elLocation = $('locationName'), 
-      elDesc = $('weatherDesc');
   
   // ✅ Pop-up göster/gizle
   let okTimer = null;
@@ -287,8 +286,6 @@
     btn.classList.add('pulse'); setTimeout(()=> btn.classList.remove('pulse'), 200);
   }
 
-
-
   async function fetchWeather() {
     const { apiKey, city } = weatherConfig;
 
@@ -302,18 +299,14 @@
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error("API hatası: " + response.statusText);
-        
         const data = await response.json();
-        
         elLocation.textContent = data.name;
         elTemp.textContent = `${Math.round(data.main.temp)}°C`;
-        elDesc.textContent = data.weather[0].description.toUpperCase(); 
 
     } catch (error) {
         console.error("Hava durumu çekilemedi:", error);
         elLocation.textContent = weatherConfig.city.split(',')[0] || "Konum";
         elTemp.textContent = "--°C";
-        elDesc.textContent = "Veri Yok";
     }
 }
 
