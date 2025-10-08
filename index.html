@@ -5,6 +5,57 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Takip</title>
 <style>
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    min-height: 110px;           /* tıklama alanı sabit */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.15));
+    transition: transform 0.15s ease, background 0.25s ease;
+    cursor: pointer;
+  }
+  .btn img {
+    width: 65px;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+    margin: 0 auto;
+    pointer-events: none;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  .btn:active img {
+    transform: scale(0.95);
+    filter: brightness(1.25);
+  }
+  
+  /* tablet ve desktop düzeltmeleri */
+  @media (min-width: 768px) {
+    .btn {
+      min-width: 150px;
+      min-height: 120px;
+    }
+    .btn img {
+      width: 75px;
+      max-height: 90px;
+    }
+  }
+  @media (min-width: 1200px) {
+    .btn {
+      min-width: 160px;
+      min-height: 130px;
+    }
+    .btn img {
+      width: 80px;
+      max-height: 95px;
+    }
+  }
+
+
+
   :root { --bg:#0f1115; --card:#151923; --txt:#e6e7ea; --muted:#9aa0aa; --bar:#2a3040; --barFill:#21c27a; }
   html,body{height:100%}
   body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -50,9 +101,14 @@
       </div>
 
       <div class="buttons">
-        <button id="btn05" class="btn btn05" disabled data-val="0.5">+0.5 L</button>
-        <button id="btn08" class="btn btn08" disabled data-val="0.8">+0.8 L</button>
+        <button id="btn05" class="btn btn05" disabled data-val="0.5">
+          <img src="./images/glass.png" alt="+0.5 L" />
+        </button>
+        <button id="btn08" class="btn btn08" disabled data-val="0.8">
+          <img src="./images/bottle.png" alt="+0.8 L" />
+        </button>
       </div>
+
 
       <div class="stats">
         <div class="stat"><div class="lab">Bugün içilen</div><div id="todaySum" class="val">0.0 L</div></div>
