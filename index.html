@@ -123,6 +123,7 @@
         <div id="weatherCard" style="text-align:right; font-size:16px; font-weight:700;">
             <span id="locationName" style="font-size:13px; color:var(--muted);">Konum</span><br>
             <span id="tempValue">--°C</span>
+            <span id="weatherDesc" style="font-weight:400; color:var(--muted);"></span>
         </div>
         
       </div>
@@ -215,7 +216,7 @@
 
 
   const elTemp = $('tempValue'), 
-      elLocation = $('locationName'), 
+      elLocation = $('locationName'); 
   
   // ✅ Pop-up göster/gizle
   let okTimer = null;
