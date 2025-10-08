@@ -71,8 +71,8 @@
        font-size:20px;font-weight:800;cursor:pointer}
   .btn:active{transform:translateY(1px);filter:brightness(.95)}
   .btn:disabled{opacity:.55;cursor:not-allowed}
-  .btn05{background:linear-gradient(180deg,rgba(0,208,132,.18),rgba(0,208,132,.08));color:#bffae1}
-  .btn08{background:linear-gradient(180deg,rgba(94,200,255,.18),rgba(94,200,255,.08));color:#d6efff}
+  .btn02{background:linear-gradient(180deg,rgba(0,208,132,.18),rgba(0,208,132,.08));color:#bffae1}
+  .btn05{background:linear-gradient(180deg,rgba(94,200,255,.18),rgba(94,200,255,.08));color:#d6efff}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   .stat{background:rgba(255,255,255,.04);border-radius:12px;padding:12px;text-align:center}
   .stat .lab{font-size:12px;color:var(--muted)}
@@ -101,11 +101,11 @@
       </div>
 
       <div class="buttons">
-        <button id="btn05" class="btn btn05" disabled data-val="0.5">
-          <img src="./images/glass.png" alt="+0.5 L" />
+        <button id="btn02" class="btn btn02" disabled data-val="0.2">
+          <img src="./images/glass.png" alt="+0.2 L" />
         </button>
-        <button id="btn08" class="btn btn08" disabled data-val="0.8">
-          <img src="./images/bottle.png" alt="+0.8 L" />
+        <button id="btn05" class="btn btn05" disabled data-val="0.5">
+          <img src="./images/bottle.png" alt="+0.5 L" />
         </button>
       </div>
 
@@ -156,7 +156,7 @@
   const elClock=$('clock'), elDate=$('date'), elGoalView=$('goalView'),
         elToday=$('todaySum'), elRemain=$('remain'), elBar=$('bar'),
         elWeek=$('weekSum'), elMonth=$('monthSum'), meterEl=document.querySelector('.meter'),
-        btn05=$('btn05'), btn08=$('btn08');
+        btn02=$('btn02'), btn05=$('btn05');
 
   // Saat
   const pad = n => n.toString().padStart(2,'0');
@@ -173,8 +173,8 @@
   let UID = null;
   function setButtonsByState() {
     const enable = navigator.onLine && !!UID;
+    btn02.disabled = !enable;
     btn05.disabled = !enable;
-    btn08.disabled = !enable;
   }
   window.addEventListener("online",  setButtonsByState);
   window.addEventListener("offline", setButtonsByState);
@@ -232,8 +232,8 @@
       setButtonsByState();
     }
   }
+  btn02.onclick = (e)=>{ addRipple(e); addValue(0.2); };
   btn05.onclick = (e)=>{ addRipple(e); addValue(0.5); };
-  btn08.onclick = (e)=>{ addRipple(e); addValue(0.8); };
 
   // Bugünün toplamını dinle
   let unsubToday=null, chart7=null;
