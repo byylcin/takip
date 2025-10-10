@@ -47,8 +47,11 @@
     align-items: center;   /* dikey ortalama */
     justify-content: center;
     
-    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
-    min-height: 100dvh; /* mobilde gerçek viewport yüksekliği */
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 12px)
+      calc(env(safe-area-inset-right, 0px) + 16px)
+      calc(env(safe-area-inset-bottom, 0px) + 16px)
+      calc(env(safe-area-inset-left, 0px) + 16px);
   }
 
   .wrap{
