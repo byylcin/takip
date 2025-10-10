@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ana Sayfa</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #151923;
+    --txt: #e6e7ea;
+    --muted: #9aa0aa;
+    --accent: #21c27a;
+  }
+
+  body {
+    margin: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    padding: 40px 50px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin: 0;
+    color: var(--txt);
+  }
+
+  p {
+    color: var(--muted);
+    margin: 0 0 12px 0;
+  }
+
+  button {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.1s ease;
+  }
+
+  button:hover { background: #1ab86f; }
+  button:active { transform: scale(0.97); }
+
+  footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>💧 Günlük Takip Uygulaması</h1>
+    <p>Günlük içme suyu miktarını kolayca takip et.</p>
+    <button id="startBtn">Uygulamayı Aç</button>
+    <footer>v1.0.0</footer>
+  </div>
+
+<script>
+  document.getElementById('startBtn').addEventListener('click', () => {
+    // Sayfayı index.html'e yönlendir
+    window.location.href = "index.html";
+  });
+</script>
+
+</body>
+</html>
