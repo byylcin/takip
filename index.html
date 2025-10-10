@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ana Sayfa</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #151923;
+    --txt: #e6e7ea;
+    --muted: #9aa0aa;
+    --accent: #21c27a;
+    --accent2: #5ec8ff;
+  }
+
+  body {
+    margin: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    padding: 40px 50px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin: 0;
+    color: var(--txt);
+  }
+
+  p {
+    color: var(--muted);
+    margin: 0 0 10px 0;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  button {
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 14px 30px;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.1s ease;
+  }
+
+  .btn-burak {
+    background: var(--accent);
+  }
+  .btn-burak:hover { background: #1ab86f; }
+  .btn-burak:active { transform: scale(0.97); }
+
+  .btn-ayse {
+    background: var(--accent2);
+  }
+  .btn-ayse:hover { background: #45b4f0; }
+  .btn-ayse:active { transform: scale(0.97); }
+
+  footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>💧 Günlük Takip Uygulaması</h1>
+    <p>Kullanıcını seç:</p>
+
+    <div class="buttons">
+      <button id="burakBtn" class="btn-burak">Burak</button>
+      <button id="ayseBtn" class="btn-ayse">Ayşe</button>
+    </div>
+
+    <footer>v1.0.0</footer>
+  </div>
+
+<script>
+  // Her buton için yönlendirme
+  document.getElementById('burakBtn').addEventListener('click', () => {
+    window.location.href = "burak.html";
+  });
+
+  document.getElementById('ayseBtn').addEventListener('click', () => {
+    window.location.href = "ayse.html";
+  });
+</script>
+
+</body>
+</html>
