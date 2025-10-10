@@ -356,7 +356,7 @@ setInterval(fetchWeather, 900000);
     setButtonsByState(); // kısa kilitleme
 
     try{
-      await addDoc(collection(db,'cgl.z'), {
+      await addDoc(collection(db,'kayitlar'), {
         uid: UID, tarih: todayISO(), saat: timeNow(), eklenen_deger: litres
       });
       flashBar();
@@ -377,7 +377,7 @@ setInterval(fetchWeather, 900000);
   let unsubToday=null, chart30=null;
   async function attachTodayListener(){
     if (typeof unsubToday==='function'){ unsubToday(); unsubToday=null; }
-    const q=query(collection(db,'cgl.z'), where('uid','==',UID), where('tarih','==',todayISO()));
+    const q=query(collection(db,'kayitlar'), where('uid','==',UID), where('tarih','==',todayISO()));
     unsubToday=onSnapshot(q,snap=>{
       let sum=0; snap.forEach(doc=> sum += Number(doc.data().eklenen_deger)||0 );
       elToday.textContent = `${sum.toFixed(1)} L`;
@@ -390,7 +390,7 @@ setInterval(fetchWeather, 900000);
   // Son 7 gün / Bu ay
   async function refreshAggregatesAndChart(){
     if (!UID) return;
-    const snap = await getDocs(query(collection(db,'cgl.z'), where('uid','==', UID)));
+    const snap = await getDocs(query(collection(db,'kayitlar'), where('uid','==', UID)));
     const all = snap.docs.map(d=>d.data());
     const map = new Map(); let weekSum=0, monthSum=0;
     const now=new Date(), today=todayISO();
@@ -454,3 +454,4 @@ setInterval(fetchWeather, 900000);
 </body>
 
 </html>
+
