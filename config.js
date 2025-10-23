@@ -12,7 +12,13 @@ export const weatherConfig = {
     city: "Ankara,TR"
 };
 
-export const authCredentials = {
-  email: "burak_-_yalcin@hotmail.com",
-  password: "123456.."
+export const authProfiles = {
+  burak: {
+    email: "burak_-_yalcin@hotmail.com",
+    password: "123456.."
+  },
+  ayse: {
+    email: "ayse@hotmail.com",
+    password: "Aa123456."
+  }
 };
