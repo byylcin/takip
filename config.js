@@ -17,8 +17,8 @@ export const authProfiles = {
     email: "burak_-_yalcin@hotmail.com",
     password: "123456.."
   },
-  ayse: {
-    email: "ayse@hotmail.com",
-    password: "Aa123456."
+  zeynep: {
+    email: "zeynep@hotmail.com",
+    password: "Aa1234567."
   }
 };
