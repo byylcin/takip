@@ -231,7 +231,7 @@
       const pop=$('okPop'), txt=$('okText'); if(!pop||!txt) return;
       txt.textContent=msg; pop.classList.add('show'); pop.setAttribute('aria-hidden','false');
       btn018.disabled = btn02.disabled = btn05.disabled = btn075.disabled = true;
-      if (okTimer) clearTimeout(okTimer); okTimer = setTimeout(hideOkPopup, 2000);
+      if (okTimer) clearTimeout(okTimer); okTimer = setTimeout(hideOkPopup, 1000);
     }
     function hideOkPopup(){
       const pop=$('okPop'); if(!pop) return;
@@ -242,8 +242,8 @@
     async function autoSignIn() {
       try {
         await setPersistence(auth, browserLocalPersistence);
-        const cred = authProfiles[PROFIL];                 // ✅ DOĞRU: profil bazlı
-        await signInWithEmailAndPassword(auth, cred.email, cred.password); // ✅ DOĞRU
+        const cred = authProfiles[PROFIL];                
+        await signInWithEmailAndPassword(auth, cred.email, cred.password); 
       } catch (e) {
         console.error("Otomatik giriş başarısız:", e);
         alert("Giriş başarısız: " + (e.message || e.code || e));
@@ -267,7 +267,7 @@
       try{
         await addDoc(collection(db, COL), {
           uid: UID,
-          owner: PROFIL,                           // ✅ sözdizimi düzeltildi
+          owner: PROFIL,                           
           tarih: todayISO(),
           saat: timeNow(),
           eklenen_deger: litres
@@ -278,8 +278,8 @@
         setButtonsByState();
       }
     }
-    btn018.onclick  = (e)=>{ addRipple(e); addValue(0.18); };
-    btn02.onclick   = (e)=>{ addRipple(e); addValue(0.2);  };
+    btn018.onclick  = (e)=>{ addRipple(e); addValue(0.2); };
+    btn02.onclick   = (e)=>{ addRipple(e); addValue(0.4);  };
     btn05.onclick   = (e)=>{ addRipple(e); addValue(0.5);  };
     btn075.onclick  = (e)=>{ addRipple(e); addValue(0.75); };
 
@@ -376,5 +376,6 @@
   </script>
 </body>
 </html>
+
 
 
