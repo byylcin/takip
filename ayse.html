@@ -190,7 +190,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script type="module">
-  import { firebaseConfig, authCredentials, weatherConfig} from "./config.js";
+  import { firebaseConfig, authProfiles, weatherConfig} from "./config.js";
 
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -332,7 +332,7 @@ setInterval(fetchWeather, 900000);
   async function autoSignIn() {
     try {
       await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, authCredentials.email, authCredentials.password);
+      await signInWithEmailAndPassword(auth, authProfiles.email, authProfiles.password);
       // başarılıysa onAuthStateChanged çalışır
     } catch (e) {
       console.error("Otomatik giriş başarısız:", e);
@@ -454,5 +454,6 @@ setInterval(fetchWeather, 900000);
 </body>
 
 </html>
+
 
 
