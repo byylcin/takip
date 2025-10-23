@@ -65,7 +65,7 @@
   .btn:active{ transform:translateY(1px); filter:brightness(.95) }
   .btn:disabled{ opacity:.55; cursor:not-allowed }
 
-  .btn018,.btn02,.btn05,.btn075{
+  .btn02,.btn04,.btn05{
     background:linear-gradient(180deg,rgba(94,200,255,.18),rgba(94,200,255,.08)); color:#d6efff
   }
 
@@ -117,19 +117,20 @@
       </div>
 
       <div class="buttons">
-        <button id="btn018" class="btn btn018" disabled data-val="0.18">
-          <img src="./images/cup_3.webp"  alt="+0.18 L" width="50" height="75" loading="lazy">
-          <span class="btn-label">0,18 L</span>
-        </button>
         
         <button id="btn02" class="btn btn02" disabled data-val="0.2">
-          <img src="./images/glass.webp"  alt="+0.2 L" width="45" height="65" loading="lazy">
+          <img src="./images/glass.webp"  alt="+0.2 L" width="30" height="55" loading="lazy">
           <span class="btn-label">Küçük Bardak L</span>
         </button>
         
+        <button id="btn04" class="btn btn04" disabled data-val="0.4">
+          <img src="./images/glass.webp"  alt="+0.4 L" width="45" height="80" loading="lazy">
+          <span class="btn-label">Büyük Bardak L</span>
+        </button>
+        
         <button id="btn05" class="btn btn05" disabled data-val="0.5">
-          <img src="./images/bottle_3.webp" alt="+0.5 L" width="50" height="120" loading="lazy">
-          <span class="btn-label">Küçükkk Bardak L</span>
+          <img src="./images/bottle_3.webp" alt="+0.5 L" width="45" height="125" loading="lazy">
+          <span class="btn-label">0,5 Şişe</span>
         </button>
         
       </div>
@@ -186,7 +187,7 @@
     const elClock=$('clock'), elDate=$('date'), elGoalView=$('goalView'),
           elToday=$('todaySum'), elRemain=$('remain'), elBar=$('bar'),
           elWeek=$('weekSum'), elMonth=$('monthSum'), meterEl=document.querySelector('.meter'),
-          btn018=$('btn018'), btn02=$('btn02'), btn05=$('btn05'), btn075=$('btn075');
+          btn02=$('btn02'), btn04=$('btn04'), btn05=$('btn05');
     const elTemp = $('tempValue'), elLocation = $('locationName');
 
     /* --------- Hava durumu (opsiyonel) --------- */
@@ -224,7 +225,7 @@
     let UID = null, unsubToday = null, chart30 = null;
     function setButtonsByState() {
       const enable = navigator.onLine && !!UID;
-      btn018.disabled = btn02.disabled = btn05.disabled = btn075.disabled = !enable;
+      btn02.disabled = btn04.disabled = btn05.disabled = !enable;
     }
     addEventListener('online',  setButtonsByState);
     addEventListener('offline', setButtonsByState);
@@ -244,7 +245,7 @@
     function showOkPopup(msg="Kayıt eklendi"){
       const pop=$('okPop'), txt=$('okText'); if(!pop||!txt) return;
       txt.textContent=msg; pop.classList.add('show'); pop.setAttribute('aria-hidden','false');
-      btn018.disabled = btn02.disabled = btn05.disabled = btn075.disabled = true;
+      btn02.disabled = btn04.disabled = btn05.disabled = true;
       if (okTimer) clearTimeout(okTimer); okTimer = setTimeout(hideOkPopup, 2000);
     }
     function hideOkPopup(){
@@ -256,8 +257,8 @@
     async function autoSignIn() {
       try {
         await setPersistence(auth, browserLocalPersistence);
-        const cred = authProfiles[PROFIL];                 // ✅ DOĞRU: profil bazlı
-        await signInWithEmailAndPassword(auth, cred.email, cred.password); // ✅ DOĞRU
+        const cred = authProfiles[PROFIL];
+        await signInWithEmailAndPassword(auth, cred.email, cred.password);
       } catch (e) {
         console.error("Otomatik giriş başarısız:", e);
         alert("Giriş başarısız: " + (e.message || e.code || e));
@@ -281,7 +282,7 @@
       try{
         await addDoc(collection(db, COL), {
           uid: UID,
-          owner: PROFIL,                           // ✅ sözdizimi düzeltildi
+          owner: PROFIL,
           tarih: todayISO(),
           saat: timeNow(),
           eklenen_deger: litres
@@ -292,10 +293,9 @@
         setButtonsByState();
       }
     }
-    btn018.onclick  = (e)=>{ addRipple(e); addValue(0.18); };
     btn02.onclick   = (e)=>{ addRipple(e); addValue(0.2);  };
-    btn05.onclick   = (e)=>{ addRipple(e); addValue(0.5);  };
-    btn075.onclick  = (e)=>{ addRipple(e); addValue(0.75); };
+    btn04.onclick   = (e)=>{ addRipple(e); addValue(0.4);  };
+    btn05.onclick  = (e)=>{ addRipple(e); addValue(0.5); };
 
     /* --------- Bugün dinleyici --------- */
     async function attachTodayListener(){
@@ -315,20 +315,9 @@
       });
     }
 
-    /* --------- Özet + Grafik --------- */
+
     async function refreshAggregatesAndChart(){
       if (!UID) return;
-
-      // İstersen son 60 günle sınırla (daha hızlı)
-      // const end = new Date();
-      // const start = new Date(); start.setDate(start.getDate() - 59);
-      // const p = n => String(n).padStart(2,'0');
-      // const startKey = `${start.getFullYear()}-${p(start.getMonth()+1)}-${p(start.getDate())}`;
-      // const endKey   = `${end.getFullYear()}-${p(end.getMonth()+1)}-${p(end.getDate())}`;
-      // const snap = await getDocs(query(collection(db,COL),
-      //   where('uid','==',UID), where('owner','==',PROFIL),
-      //   where('tarih','>=',startKey), where('tarih','<=',endKey)));
-
       const snap = await getDocs(query(
         collection(db, COL),
         where('uid','==', UID),
@@ -390,6 +379,7 @@
   </script>
 </body>
 </html>
+
 
 
 
