@@ -201,7 +201,7 @@
     const timeNow  = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
     function tickClock(){ const d=new Date();
       elClock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-      elDate.textContent  = `${todayISO()} • ` + new Intl.DateTimeFormat('tr-TR',{dateStyle:'full'}).format(d);
+      elDate.textContent  = new Intl.DateTimeFormat('tr-TR', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}).format(d);
     }
     setInterval(tickClock,1000); tickClock();
     elGoalView.textContent = `${DAILY_GOAL_L.toFixed(1)} L`;
@@ -376,6 +376,7 @@
   </script>
 </body>
 </html>
+
 
 
 
